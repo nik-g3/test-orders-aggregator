@@ -6,6 +6,9 @@ import type { CustomersService } from "./customers.js";
 export interface DailyTotal {
   date: string;
   total: number;
+  gross: number;
+  discount: number;
+  net: number;
 }
 
 const DAY = 86_400_000;
@@ -31,12 +34,33 @@ export class TotalsService {
       new Date(Date.parse(`${to}T00:00:00Z`) + 2 * DAY),
     );
 
-    const sums = new Map(datesBetween(from, to).map((d) => [d, 0]));
+    const sums = new Map(datesBetween(from, to).map((d) => [
+        d, {
+          gross: 0,
+          discount: 0,
+          net: 0,
+        },
+      ]),
+    );
     for (const o of rows) {
-      const date = dateAtOffset(o.createdAt, offset);
+      const date = dateAtOffset(
+          o.createdAt,
+          tzOffsetMinutes(timezone, o.createdAt),
+      );
+
       const cur = sums.get(date);
-      if (cur !== undefined) sums.set(date, cur + o.amountKop);
+      if (cur !== undefined) {
+        cur.gross += o.amountKop;
+        cur.net += o.amountPaidKop;
+        cur.discount += o.amountKop - o.amountPaidKop;
+      }
     }
-    return [...sums].map(([date, kop]) => ({ date, total: fromKop(kop) }));
+    return [...sums].map(([date, sum]) => ({
+      date,
+      total: fromKop(sum.gross),
+      gross: fromKop(sum.gross),
+      discount: fromKop(sum.discount),
+      net: fromKop(sum.net),
+    }));
   }
 }

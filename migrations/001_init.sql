@@ -5,12 +5,13 @@ CREATE TABLE customers (
 );
 
 CREATE TABLE orders (
-  id           TEXT PRIMARY KEY,
-  customer_id  TEXT        NOT NULL,
-  amount_kop   BIGINT      NOT NULL,
-  status       TEXT        NOT NULL CHECK (status IN ('pending', 'paid', 'refunded')),
-  created_at   TIMESTAMPTZ NOT NULL,
-  updated_at   TIMESTAMPTZ NOT NULL
+  id               TEXT PRIMARY KEY,
+  customer_id      TEXT        NOT NULL,
+  amount_kop       BIGINT      NOT NULL,
+  amount_paid_kop  BIGINT      NOT NULL,
+  status           TEXT        NOT NULL CHECK (status IN ('pending', 'paid', 'refunded')),
+  created_at       TIMESTAMPTZ NOT NULL,
+  updated_at       TIMESTAMPTZ NOT NULL
 );
 
 CREATE INDEX orders_customer_status_created ON orders (customer_id, status, created_at);

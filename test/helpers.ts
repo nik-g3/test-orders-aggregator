@@ -35,10 +35,12 @@ let seq = 0;
 /** Заказ в формате внешнего API. */
 export function apiOrder(over: Partial<Record<string, unknown>> = {}) {
   seq++;
+  const amount = over.amount ?? 1000;
   return {
     id: `o_${seq}`,
     customerId: "c_1",
-    amount: 1000,
+    amount,
+    amountPaid: amount,
     status: "paid",
     createdAt: "2026-02-10T12:00:00.000Z",
     updatedAt: "2026-02-10T12:00:00.000Z",
